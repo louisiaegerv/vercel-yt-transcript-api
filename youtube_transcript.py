@@ -1,12 +1,43 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 def get_video_id(url):
-    # Extract video ID from YouTube URL
-    pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
-    match = re.search(pattern, url)
-    if match:
-        return match.group(1)
+    """Extract and validate YouTube video ID from various URL formats"""
+    patterns = [
+        r'(?:v=|\/v\/|embed\/|youtu.be\/)([0-9A-Za-z_-]{11})',  # Standard URL formats
+        r'^([0-9A-Za-z_-]{11})$'  # Direct video ID
+    ]
+    
+    logger.debug(f"Parsing URL: {url}")
+    logger.debug(f"Original URL length: {len(url)} characters")
+    
+    # Remove URL encoding and extra spaces
+    clean_url = url.strip().replace('%3A', ':').replace('%2F', '/')
+    logger.debug(f"Cleaned URL: {clean_url}")
+    
+    for pattern in patterns:
+        match = re.search(pattern, clean_url)
+        if match:
+            video_id = match.group(1)
+            logger.debug(f"Pattern '{pattern}' matched. Extracted ID: {video_id}")
+            
+            # Strict validation
+            if len(video_id) != 11:
+                logger.error(f"Invalid ID length: {len(video_id)} characters")
+                return None
+                
+            if not re.match(r'^[0-9A-Za-z_-]{11}$', video_id):
+                logger.error(f"Invalid characters in ID: {video_id}")
+                return None
+                
+            logger.info(f"Valid video ID found: {video_id}")
+            return video_id
+            
+    logger.error(f"No valid video ID found. Failed URL: {clean_url}")
+    logger.debug(f"Scanned URL parts: {clean_url.split('/')}")
     return None
 
 def get_transcript(video_id):
