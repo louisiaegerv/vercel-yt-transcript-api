@@ -1,3 +1,13 @@
 {
-  "redirects": [{ "source": "/", "destination": "/api" }]
+  "redirects": [{ "source": "/", "destination": "/api" }],
+  "build": {
+    "env": {
+      "PYTHON_VERSION": "3.9"
+    }
+  },
+  "functions": {
+    "api/*.py": {
+      "runtime": "python@3.9"
+    }
+  }
 }
