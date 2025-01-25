@@ -56,7 +56,10 @@ class handler(BaseHTTPRequestHandler):
             try:
                 # Get English transcript
                 transcript = YouTubeTranscriptApi.get_transcript(video_id)
+                logger.info(f"transcript: {transcript}")
+
                 formatted = format_transcript(transcript)
+                logger.info(f"formatted: {formatted}")
                 
                 self.send_response(200)
                 self.send_header('Content-type','application/json')
